@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
         button.addEventListener("click", () => {
             const text = textInput.value; // دریافت متن ورودی
 
-            fetch('assets/font/vazir.txt')
+            fetch('assets/font/base-font.txt')
                 .then(response => response.text())
                 .then(data => {
                     const vazirFont = data.trim(); // داده‌های Base64 فونت
