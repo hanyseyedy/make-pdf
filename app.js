@@ -1,19 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const button = document.getElementById("generate-pdf");
-    const textInput = document.getElementById("text-input");
+    // مقداردهی اولیه Quill.js
+    const quill = new Quill("#editor-container", {
+        theme: "snow",
+        placeholder: "متن خود را وارد کنید...",
+        modules: {
+            toolbar: [
+                ["bold", "italic", "underline"], // ابزار قالب‌بندی
+                [{ list: "ordered" }, { list: "bullet" }], // لیست‌ها
+                [{ direction: "rtl" }], // تنظیم جهت راست به چپ
+                ["clean"], // حذف قالب‌بندی
+            ],
+        },
+    });
 
-    // تنظیم دایرکشن برای ورودی متن
-    if (textInput) {
-        textInput.dir = "rtl"; // جهت راست به چپ برای textarea
-    }
+    const button = document.getElementById("generate-pdf");
 
     if (button) {
         button.addEventListener("click", () => {
-            const text = textInput.value; // دریافت متن ورودی
+            const text = quill.getText(); // دریافت متن ساده از Quill.js
 
-            fetch('assets/font/base-font.txt')
-                .then(response => response.text())
-                .then(data => {
+            fetch("assets/font/base-font.txt")
+                .then((response) => response.text())
+                .then((data) => {
                     const vazirFont = data.trim(); // داده‌های Base64 فونت
 
                     const doc = new window.jspdf.jsPDF();
@@ -29,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     doc.save("output.pdf"); // ذخیره PDF
                 })
-                .catch(error => console.error('خطا:', error));
+                .catch((error) => console.error("خطا:", error));
         });
     } else {
         console.error("دکمه 'generate-pdf' پیدا نشد!");
