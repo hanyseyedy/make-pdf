@@ -4,9 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
         placeholder: "متن خود را وارد کنید...",
         modules: {
             toolbar: [
-                ["bold", "italic", "underline"], 
-                [{ list: "ordered" }, { list: "bullet" }], 
-                [{ direction: "rtl" }], 
+                ["bold", "italic", "underline"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                [{ direction: "rtl" }],
                 ["clean"],
             ],
         },
@@ -16,33 +16,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (button) {
         button.addEventListener("click", () => {
-            const plainText = quill.getText(); // دریافت متن ساده
-            const htmlContent = quill.root.innerHTML; // دریافت محتوای HTML
+            const htmlContent = quill.root.innerHTML;
 
+            // بارگذاری فونت فارسی
             fetch("assets/font/base-font.txt")
                 .then((response) => response.text())
                 .then((data) => {
-                    const vazirFont = data.trim(); // داده‌های Base64 فونت
+                    const vazirFont = data.trim();
 
                     const doc = new window.jspdf.jsPDF({
                         orientation: "portrait",
                         unit: "mm",
                         format: "a4",
+                        putOnlyUsedFonts: true,
+                        compress: true,
                     });
 
-                    // اضافه کردن فونت
+                    // اضافه کردن فونت فارسی به jsPDF
                     doc.addFileToVFS("Vazir.ttf", vazirFont);
                     doc.addFont("Vazir.ttf", "Vazir", "normal");
                     doc.setFont("Vazir");
 
-                    // استفاده از `doc.text` برای متن ساده
-                    doc.text(plainText, 190, 20, {
-                        align: "right", // جهت راست به چپ
-                        maxWidth: 180,
+                    // استفاده از html2canvas برای رندر کردن محتوای Quill به تصویر
+                    html2canvas(quill.root, {
+                        useCORS: true, // اجازه دسترسی به منابع خارجی
+                        scale: 2, // افزایش کیفیت رندر
+                    }).then(function (canvas) {
+                        const imgData = canvas.toDataURL("image/png");
+                        doc.addImage(imgData, "PNG", 10, 20, 180, 160);
+                        doc.save("output.pdf");
                     });
-
-                    // ذخیره فایل PDF
-                    doc.save("output.pdf");
                 })
                 .catch((error) => console.error("خطا در بارگذاری فونت:", error));
         });
