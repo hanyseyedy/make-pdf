@@ -1,14 +1,13 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // مقداردهی اولیه Quill.js
     const quill = new Quill("#editor-container", {
         theme: "snow",
         placeholder: "متن خود را وارد کنید...",
         modules: {
             toolbar: [
-                ["bold", "italic", "underline"], // ابزار قالب‌بندی
-                [{ list: "ordered" }, { list: "bullet" }], // لیست‌ها
-                [{ direction: "rtl" }], // تنظیم جهت راست به چپ
-                ["clean"], // حذف قالب‌بندی
+                ["bold", "italic", "underline"], 
+                [{ list: "ordered" }, { list: "bullet" }], 
+                [{ direction: "rtl" }], 
+                ["clean"],
             ],
         },
     });
@@ -17,27 +16,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (button) {
         button.addEventListener("click", () => {
-            const text = quill.getText(); // دریافت متن ساده از Quill.js
+            const plainText = quill.getText(); // دریافت متن ساده
+            const htmlContent = quill.root.innerHTML; // دریافت محتوای HTML
 
             fetch("assets/font/base-font.txt")
                 .then((response) => response.text())
                 .then((data) => {
                     const vazirFont = data.trim(); // داده‌های Base64 فونت
 
-                    const doc = new window.jspdf.jsPDF();
-                    doc.addFileToVFS("vazir.ttf", vazirFont); // اضافه کردن فونت
-                    doc.addFont("vazir.ttf", "Vazir", "normal"); // انتخاب فونت
-                    doc.setFont("Vazir");
-
-                    // تنظیم متن و مکان آن
-                    doc.text(text, 190, 20, {
-                        align: "right", // جهت راست به چپ
-                        maxWidth: 180, // عرض حداکثر
+                    const doc = new window.jspdf.jsPDF({
+                        orientation: "portrait",
+                        unit: "mm",
+                        format: "a4",
                     });
 
-                    doc.save("output.pdf"); // ذخیره PDF
+                    // اضافه کردن فونت
+                    doc.addFileToVFS("Vazir.ttf", vazirFont);
+                    doc.addFont("Vazir.ttf", "Vazir", "normal");
+                    doc.setFont("Vazir");
+
+                    // استفاده از `doc.text` برای متن ساده
+                    doc.text(plainText, 190, 20, {
+                        align: "right", // جهت راست به چپ
+                        maxWidth: 180,
+                    });
+
+                    // ذخیره فایل PDF
+                    doc.save("output.pdf");
                 })
-                .catch((error) => console.error("خطا:", error));
+                .catch((error) => console.error("خطا در بارگذاری فونت:", error));
         });
     } else {
         console.error("دکمه 'generate-pdf' پیدا نشد!");
