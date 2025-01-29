@@ -41,9 +41,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     html2canvas(quill.root, {
                         useCORS: true, // اجازه دسترسی به منابع خارجی
                         scale: 2, // افزایش کیفیت رندر
+                        x: 0, // حذف هرگونه کشیدگی اضافی از تصویر
+                        y: 0,
                     }).then(function (canvas) {
                         const imgData = canvas.toDataURL("image/png");
-                        doc.addImage(imgData, "PNG", 10, 20, 180, 160);
+
+                        // اضافه کردن تصویر به PDF و تنظیم ابعاد به طور صحیح
+                        doc.addImage(imgData, "PNG", 10, 20, 190, (canvas.height * 190) / canvas.width); // تنظیم عرض به 190 و محاسبه خودکار ارتفاع
                         doc.save("output.pdf");
                     });
                 })
